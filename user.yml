@@ -1,0 +1,14 @@
+- name: create a user and add that user to a new group
+  hosts: lostembos
+  become: true
+  tasks:
+   - name: create a new group
+     group:
+      name: familia
+      state: present
+
+   - name: create a user called marshall
+     user:
+      name: marshall
+      group: familia
+      state: present

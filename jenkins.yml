@@ -1,0 +1,45 @@
+- name: install jenkins
+  hosts: lostembos
+  become: true
+  tasks:
+   - name: install java
+     ansible.builtin.dnf:
+      name: java-21-devel
+      state: latest
+
+   - name: download jenkins repository file
+     get_url:
+      url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+      dest: /etc/yum.repos.d/jenkins.repo
+
+   - name: import jenkins key
+     rpm_key:
+      key: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+      state: present
+
+   - name: install jenkins
+     dnf:
+      name: jenkins
+      state: present
+
+   - name: start jenkins
+     service:
+      name: jenkins
+      state: started
+      enabled: true
+
+   - name: change file permission
+     file:
+      path: /etc/sudoers.d/90-cloud-init-users
+      mode: 0640
+
+   - name: adding jenkins to sudoers file
+     ansible.builtin.blockinfile:
+       path: /etc/sudoers.d/90-cloud-init-users
+       block: |
+         jenkins ALL=(ALL) NOPASSWD:ALL
+
+   - name: change file permission
+     file:
+      path: /etc/sudoers.d/90-cloud-init-users
+      mode: 0440
